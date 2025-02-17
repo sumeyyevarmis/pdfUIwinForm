@@ -125,7 +125,6 @@
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 81.8181839F));
             tableLayoutPanel3.Size=new Size(561, 561);
             tableLayoutPanel3.TabIndex=0;
-            tableLayoutPanel3.Paint+=tableLayoutPanel3_Paint;
             // 
             // richTextBox1
             // 
@@ -275,6 +274,7 @@
             // 
             richTextBox2.BackColor=Color.Black;
             richTextBox2.Dock=DockStyle.Fill;
+            richTextBox2.Font=new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
             richTextBox2.ForeColor=Color.White;
             richTextBox2.Location=new Point(3, 85);
             richTextBox2.Name="richTextBox2";

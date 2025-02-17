@@ -12,11 +12,6 @@ namespace pdfUI
             this.WindowState = FormWindowState.Maximized;
         }
 
-        private void tableLayoutPanel3_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -77,32 +72,45 @@ namespace pdfUI
                     string fileContent = File.ReadAllText(filePath);
                     richTextBox2.Text = fileContent;
 
+                    // Markdown içeriğini RTF formatına çevir ve önizleme için ekle
                     string markdownContent = File.ReadAllText(filePath);
-
-                    // Markdown'ı RichTextBox'a RTF formatında ekleyelim
                     richTextBox3.Rtf = ConvertMarkdownToRtf(markdownContent);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("file is not read: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("File is not read: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
+
         private string ConvertMarkdownToRtf(string markdown)
         {
-            // RTF Başlangıcı
-            string rtfHeader = @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;} ";
-
+            // RTF Başlangıcı: Yazı tipi ve renk ayarlarını da ekleyelim
+            string rtfHeader = @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red255\green255\blue255;} ";
+            // Markdown'ı RTF'ye çevirirken kullanılan dönüşümler: 
             // **Kalın** -> \b Kalın \b0
-            markdown = Regex.Replace(markdown, @"\*\*(.*?)\*\*", @"\b $1 \b0");
+            markdown = Regex.Replace(markdown, @"\*\*(.*?)\*\*", @"\b\fs24 $1 \b0");
 
             // *İtalik* -> \i İtalik \i0
-            markdown = Regex.Replace(markdown, @"\*(.*?)\*", @"\i $1 \i0");
+            markdown = Regex.Replace(markdown, @"\*(.*?)\*", @"\i\fs24 $1 \i0");
 
-            // # Başlık -> Büyük ve Mavi Renk
-            markdown = Regex.Replace(markdown, @"^# (.*?)$", @"\cf2\b $1 \b0", RegexOptions.Multiline);
+            // # Başlık -> \fs36 (Orta Boy Yazı), \cf2 (Kırmızı Renk), ve \b (Kalın)
+            markdown = Regex.Replace(markdown, @"^# (.*?)$", @"\fs36\cf2\b $1 \b0\par", RegexOptions.Multiline);
 
+            // Alt başlık için ## -> \fs24 (Küçük Yazı Boyutu), \cf2 (Kırmızı Renk), ve \b (Kalın)
+            markdown = Regex.Replace(markdown, @"^## (.*?)$", @"\fs24\cf2\b $1 \b0\par", RegexOptions.Multiline);
+
+            // Listeler için * -> \ul (Altı Çizili)
+            markdown = Regex.Replace(markdown, @"^\* (.*?)$", @"\ul\fs24 $1 \ul0\par", RegexOptions.Multiline);
+
+            // Satır içi metinlerdeki \par'ı ekleyelim ki her metin ve başlık ayrı bir satıra gelsin.
+            markdown = markdown.Replace("\n", @"\par");
+
+
+            // RTF Sonu
             return rtfHeader + markdown + "}";
         }
+
+
     }
 }
